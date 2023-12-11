@@ -1,0 +1,34 @@
+blockchain:
+  port: 10005
+  server: localhost
+  threads: 2
+metronome:
+  port: 10006
+  server: localhost
+  threads: 2
+pool:
+  port: 10007
+  server: localhost
+  threads: 2
+validator:
+  fingerprint: ecac6096-b2ed-4958-ba71-8fd152681e90
+  port: 10008
+  proof_pom:
+    enable: false
+    memory: 1G
+    threads_hash: 2
+  proof_pos:
+    buckets: 256
+    cup_size: 32768
+    cups_per_hash: 40
+    disk: 10G
+    enable: false
+    threads_hash: 2
+    threads_io: 1
+    vault: ~/dsc-pos.vault
+  proof_pow:
+    enable: true
+    threads_hash: 2
+  public_key: HPy16vnZSqxi7UoGWswDtvSMqoNhktXGhiGhdpz67HoY
+wallet:
+  public_key: DEpm7aynDWFF7tQ7M78sdezDgNeqa8kP6M67uzvF8W1X
