@@ -35,38 +35,6 @@ BC_PORT = YAMLCONFIG['blockchain']['port']
 VD_PORT = YAMLCONFIG['validator']['port']
 
 
-def json_pool_tx_send(tx_pkg):  # json format for sending tx to pool
-    tx = dsc.pickled_b58(tx_pkg)  # converts tx pickle encoded in base58
-    json_data = {  # because bytes cannot be sent over json
-        "jsonrpc": "2.0",
-        "method": "add_queue",
-        "params": {"tx": tx},
-        "id": 1
-    }
-    return json.dumps(json_data)
-
-
-@staticmethod
-def json_pool_tx_query(tx_id):  # json format to query pool with tx_id
-    json_data = {
-        "jsonrpc": "2.0",
-        "method": "tx_query",
-        "params": {"tx_id": tx_id},
-        "id": 1
-    }
-    return json.dumps(json_data)
-
-
-def json_pool_pubid_query(self):  # json format to query pool with pub_id for all txs
-    json_data = {
-        "jsonrpc": "2.0",
-        "method": "pubid_query",
-        "params": {"pub_key": self.public_key_hr},
-        "id": 1
-    }
-    return json.dumps(json_data)
-
-
 def json_monitor_balance_all():  # json format to ask blockchain for balance
     json_data = {
         "jsonrpc": "2.0",
