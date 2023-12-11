@@ -45,6 +45,7 @@ def json_pool_tx_send(tx_pkg):  # json format for sending tx to pool
     }
     return json.dumps(json_data)
 
+
 @staticmethod
 def json_pool_tx_query(tx_id):  # json format to query pool with tx_id
     json_data = {
@@ -55,6 +56,7 @@ def json_pool_tx_query(tx_id):  # json format to query pool with tx_id
     }
     return json.dumps(json_data)
 
+
 def json_pool_pubid_query(self):  # json format to query pool with pub_id for all txs
     json_data = {
         "jsonrpc": "2.0",
@@ -63,6 +65,7 @@ def json_pool_pubid_query(self):  # json format to query pool with pub_id for al
         "id": 1
     }
     return json.dumps(json_data)
+
 
 def json_get_bal(self):  # json format to ask blockchain for balance
     json_data = {
@@ -97,16 +100,7 @@ async def main():
                         help='Obtain details on latest block on the blockchain')
     parser.add_argument('-br', '--blockchain-reward-status', action='store_true',
                         help='Display details on the blockchain')
-    parser.add_argument('-wk', '--wallet-key', action='store_true',
-                        help='Display public and private keys as Base58')
-    parser.add_argument('-wb', '--wallet-balance', action='store_true',
-                        help='Query balance from blockchain')
-    parser.add_argument('-ws', '--wallet-send', nargs=2, metavar=('amount', 'address'),
-                        help='Send coin <amount> to <address>')
-    parser.add_argument('-wt', '--wallet-transaction', nargs=1, metavar='transaction-id',
-                        help='Query the blockchain and pools for a specific transaction')
-    parser.add_argument('-wtx', '--wallet-transactions', action='store_true',
-                        help='Query the blockchain and pools for all transactions associated with your public key')
+
     args = parser.parse_args()
 
     if not any(vars(args).values()):
