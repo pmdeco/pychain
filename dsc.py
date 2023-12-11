@@ -10,6 +10,7 @@ import pickle
 import queue
 import random
 import socket
+import subprocess
 import struct
 import time
 import uuid
@@ -60,6 +61,16 @@ def get_time_ms():
 # Used to generate a random nonce for the size of an unsized int
 def rand_unsigned_int(val):
     return random.randint(0, val)
+
+
+def get_ip_addr():
+    try:
+        command = f"ip -4 addr show eth0 | grep inet | awk '{{print $2}}' | cut -d'/' -f1"
+        ip_address = subprocess.check_output(command, shell=True, text=True).strip()
+        return ip_address
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        return None
 
 
 # Transaction #######################################################

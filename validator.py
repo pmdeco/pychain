@@ -34,6 +34,8 @@ BC_ADDR = YAMLCONFIG['blockchain']['server']
 BC_PORT = YAMLCONFIG['blockchain']['port']
 VD_PORT = YAMLCONFIG['validator']['port']
 
+VD_ADDR = dsc.get_ip_addr()
+
 
 # Validator class
 class Validator:
@@ -51,13 +53,6 @@ class Validator:
         self.public_key = dsc.calc_sha256_str(self.private_key)
         self.public_key_hr = base58.b58encode(self.public_key).decode('utf-8')
 
-    # Obtain own IP address to send to metronome for registration
-    def get_own_ip(self):
-        try:
-            host = socket.gethostname()
-            self.ip_addr = socket.gethostbyname(host)
-        except socket.error as e:
-            print(f'Socket Error: {e}')
 
     @staticmethod
     def json_blockchain_new_blk(data):
@@ -170,14 +165,6 @@ fprint = str(uuid.uuid4())
 validator = Validator(fprint.encode('utf-8'))
 
 
-def get_ip():
-    try:
-        host = socket.gethostname()
-        return socket.gethostbyname(host)
-    except socket.error as e:
-        print(f'Socket Error: {e}')
-
-
 @method
 async def ping() -> Result:
     response = dsc.pickled_b58("pong :: validator")
@@ -193,7 +180,7 @@ async def create_block(data) -> Result:
     data = (dsc.pack_blk_hdr((128 + (128 * len_tx_arr)), 1, winning_hash,
                              dsc.get_time_ms(), difficulty, nonce, len_tx_arr),
             tx_arr)
-    print(f'{len_tx_arr}')
+
     response = await request(BC_ADDR, BC_PORT, validator.json_blockchain_new_blk(data))
     dsc.print_ts(f'New block created by {validator.fingerprint.decode("utf-8")} in blockchain, '
                  f'hash {winning_hash.decode("utf-8")} :: {response}')
@@ -222,9 +209,7 @@ def start_server():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    VD_ADDR_IP = get_ip()
-
-    server = websockets.serve(jrpc_server, VD_ADDR_IP, VD_PORT)
+    server = websockets.serve(jrpc_server, VD_ADDR, VD_PORT)
 
     loop.run_until_complete(server)
     loop.run_forever()
@@ -241,7 +226,7 @@ def start_validator():
 
 
 async def run_validator():
-    validator.get_own_ip()
+    validator.ip_addr = VD_ADDR
     validator.create_keys(validator.fingerprint)
 
     YAMLCONFIG['validator']['fingerprint'] = validator.fingerprint.decode('utf-8')
