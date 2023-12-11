@@ -65,8 +65,8 @@ def rand_unsigned_int(val):
 
 def get_ip_addr():
     try:
-        # command = f"ip -4 addr show eth0 | grep inet | awk '{{print $2}}' | cut -d'/' -f1"
-        command = f"ip -4 addr show wlp3s0 | grep inet | awk '{{print $2}}' | cut -d'/' -f1"
+        command = f"ip -4 addr show eth0 | grep inet | awk '{{print $2}}' | cut -d'/' -f1"
+        # command = f"ip -4 addr show wlp3s0 | grep inet | awk '{{print $2}}' | cut -d'/' -f1"
         ip_address = subprocess.check_output(command, shell=True, text=True).strip()
         return ip_address
     except subprocess.CalledProcessError as e:
