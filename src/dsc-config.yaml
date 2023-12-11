@@ -1,14 +1,14 @@
 blockchain:
   port: 10005
-  server: localhost
+  server: 10.245.88.165
   threads: 2
 metronome:
   port: 10006
-  server: localhost
+  server: 10.245.88.165
   threads: 2
 pool:
   port: 10007
-  server: localhost
+  server: 10.245.88.165
   threads: 2
 validator:
   fingerprint: ca7a477c-ce89-46ec-be34-72bf67183a5e
