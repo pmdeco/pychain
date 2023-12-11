@@ -67,14 +67,86 @@ def json_pool_pubid_query(self):  # json format to query pool with pub_id for al
     return json.dumps(json_data)
 
 
-def json_get_bal(self):  # json format to ask blockchain for balance
+def json_monitor_balance_all():  # json format to ask blockchain for balance
     json_data = {
         "jsonrpc": "2.0",
-        "method": "get_balance_cache",
-        "params": {"pub_key": self.public_key_hr},
+        "method": "monitor_balance_all",
         "id": 1
     }
     return json.dumps(json_data)
+
+
+def json_monitor_blockchain_details():  # json format to ask blockchain for balance
+    json_data = {
+        "jsonrpc": "2.0",
+        "method": "monitor_blockchain_details",
+        "id": 1
+    }
+    return json.dumps(json_data)
+
+
+def json_blockchain_last_block():  # json format to ask blockchain for balance
+    json_data = {
+        "jsonrpc": "2.0",
+        "method": "monitor_blockchain_last_block",
+        "id": 1
+    }
+    return json.dumps(json_data)
+
+
+def json_get_bal(pub_key):  # json format to ask blockchain for balance
+    json_data = {
+        "jsonrpc": "2.0",
+        "method": "get_balance_cache",
+        "params": {"pub_key": pub_key},
+        "id": 1
+    }
+    return json.dumps(json_data)
+
+
+def json_get_reward():  # json format to ask blockchain for balance
+    json_data = {
+        "jsonrpc": "2.0",
+        "method": "get_reward",
+        "id": 1
+    }
+    return json.dumps(json_data)
+
+
+async def blockchain_balance_all():
+    response = await request(BC_ADDR, BC_PORT, json_monitor_balance_all())
+    for key in response:
+        dsc.print_ts(f'{key} :: Balance {response[key]["balance"]} :: '
+                     f'Last Tx {response[key]["last_tx"][0]} :: @ Block {response[key]["last_tx"][1]}')
+
+
+async def monitor_blockchain_details():
+    blk_count = 1
+    response = await request(BC_ADDR, BC_PORT, json_monitor_blockchain_details())
+    dsc.print_ts(f'Block #{blk_count}')
+    for hdr in response:
+        blk_hdr_tup = dsc.unpack_blk_hdr_as_b58(hdr)
+        print(f'\tBlock Size           {blk_hdr_tup[0]}\n'
+              f'\tVersion              {blk_hdr_tup[1]}\n'
+              f'\tBlock Hash           {blk_hdr_tup[2]}\n'
+              f'\tTimestamp            {blk_hdr_tup[3]}\n'
+              f'\tDifficulty Target    {blk_hdr_tup[4]}\n'
+              f'\tNonce                {blk_hdr_tup[5]}\n'
+              f'\tTransaction Count    {blk_hdr_tup[6]}')
+        print()
+        blk_count += 1
+
+
+async def blockchain_last_block():
+    response = await request(BC_ADDR, BC_PORT, json_blockchain_last_block())
+    blk_hdr_tup = dsc.unpack_blk_hdr_as_b58(response)
+    print(f'\tBlock Size           {blk_hdr_tup[0]}\n'
+          f'\tVersion              {blk_hdr_tup[1]}\n'
+          f'\tBlock Hash           {blk_hdr_tup[2]}\n'
+          f'\tTimestamp            {blk_hdr_tup[3]}\n'
+          f'\tDifficulty Target    {blk_hdr_tup[4]}\n'
+          f'\tNonce                {blk_hdr_tup[5]}\n'
+          f'\tTransaction Count    {blk_hdr_tup[6]}')
 
 
 async def request(host, port, jrpc_msg):
@@ -96,39 +168,33 @@ async def main():
     parser = argparse.ArgumentParser(
         prog='DSC',
         description='DataSys Coin Blockchain')
+    parser.add_argument('-ba', '--blockchain-all-blocks', action='store_true',
+                        help='Print headers from all blocks on the blockchain')
     parser.add_argument('-bl', '--blockchain-last-block', action='store_true',
-                        help='Obtain details on latest block on the blockchain')
+                        help='Print headers from last block on the blockchain')
     parser.add_argument('-br', '--blockchain-reward-status', action='store_true',
                         help='Display details on the blockchain')
+    parser.add_argument('-bb', '--blockchain-all-balances', action='store_true',
+                        help='Display details all balances')
+    parser.add_argument('-bp', '--blockchain-pubkey-balances', nargs=1, metavar='pub-id',
+                        help='Display details public key balance, requires argument <pub_key>')
 
     args = parser.parse_args()
 
     if not any(vars(args).values()):
         parser.print_help()
-    if args.wallet_create:
-        wallet.create_wallet()
-    if args.wallet_key:
-        wallet.print_keys()
-    if args.wallet_key_bytes:
-        wallet.print_keys_bytes()
-    if args.wallet_send:
-        amount, recipient = args.wallet_send
-        tx_pkg = wallet.create_transaction(recipient, amount)
-        response = await request(PL_ADDR, PL_PORT, wallet.json_pool_tx_send(tx_pkg))
-        dsc.print_ts(f'Transaction :: {response}')
-    if args.wallet_balance:
-        response = await request(BC_ADDR, BC_PORT, wallet.json_get_bal())
+    if args.blockchain_all_blocks:
+        await monitor_blockchain_details()
+    if args.blockchain_last_block:
+        await blockchain_last_block()
+    if args.blockchain_reward_status:
+        response = await request(BC_ADDR, BC_PORT, json_get_reward())
+        dsc.print_ts(f'Current reward amount: {response}')
+    if args.blockchain_all_balances:
+        await blockchain_balance_all()
+    if args.blockchain_pubkey_balances:
+        response = await request(BC_ADDR, BC_PORT, json_get_bal(args.blockchain_pubkey_balances[0]))
         dsc.print_ts(f'Current Balance :: {response[0]} at Block {response[1]}, last transaction {response[2]}')
-    if args.wallet_transaction:
-        tx_id = args.wallet_transaction[0]
-        dsc.print_ts(f'{tx_id}')
-        response = await request(PL_ADDR, PL_PORT, wallet.json_pool_tx_query(tx_id))
-        dsc.print_ts(f'Query :: {tx_id} :: {response}')
-    if args.wallet_transactions:
-        response = await request(PL_ADDR, PL_PORT, wallet.json_pool_pubid_query())
-        for i in response:
-            tx = dsc.unpack_tx_as_b58(i[0])
-            dsc.print_ts(f"{tx[4]} {i[1]}")
 
 
 if __name__ == "__main__":

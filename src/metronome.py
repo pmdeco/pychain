@@ -142,8 +142,8 @@ class Metronome:
             self.difficulty -= 1
         else:
             pass
-        if self.difficulty < 1:
-            self.difficulty = 1
+        if self.difficulty < 10:
+            self.difficulty = 10
 
 
 @method

@@ -144,6 +144,25 @@ class Blockchain:
             current_blk = current_blk.next
         print()
 
+    def obtain_block_hdr_all(self):
+        lst = []
+        current_blk = self.head
+        blk_count = 0
+        while current_blk:
+            blk_count += 1
+            lst.append(current_blk.data[0])
+            current_blk = current_blk.next
+        return lst
+
+    def obtain_block_hdr_last(self):
+        current_blk = self.head
+        blk_count = 0
+        while current_blk:
+            blk_count += 1
+            if current_blk.next is None:
+                return current_blk.data[0]
+            current_blk = current_blk.next
+
     def print_balance(self, pub_key_hr):
         current_blk = self.head
         blk_count = 0
@@ -170,7 +189,7 @@ class Blockchain:
             self.reward = self.reward / 2
             dsc.print_ts(f'Reward Updated: after {self.validator_block_count} validator blocks, '
                          f'reward :: {self.reward}')
-        elif self.validator_block_count % 10 == 0 and self.reward == 1:
+        elif self.reward == 1:
             self.reward = 0
             dsc.print_ts(f'Reward Updated: after {self.validator_block_count} validator blocks, '
                          f'reward :: {self.reward}')
@@ -250,6 +269,24 @@ async def get_balance_cache(pub_key) -> Result:
             result = 0
         response = dsc.pickled_b58(result)
         return Success(response)
+
+
+@method
+async def monitor_balance_all() -> Result:
+    response = dsc.pickled_b58(BC.cache)
+    return Success(response)
+
+
+@method
+async def monitor_blockchain_details() -> Result:
+    response = dsc.pickled_b58(BC.obtain_block_hdr_all())
+    return Success(response)
+
+
+@method
+async def monitor_blockchain_last_block() -> Result:
+    response = dsc.pickled_b58(BC.obtain_block_hdr_last())
+    return Success(response)
 
 
 async def request(host, port, jrpc_msg):

@@ -11,7 +11,7 @@ pool:
   server: localhost
   threads: 2
 validator:
-  fingerprint: ecac6096-b2ed-4958-ba71-8fd152681e90
+  fingerprint: ca7a477c-ce89-46ec-be34-72bf67183a5e
   port: 10008
   proof_pom:
     enable: false
@@ -29,6 +29,6 @@ validator:
   proof_pow:
     enable: true
     threads_hash: 2
-  public_key: HPy16vnZSqxi7UoGWswDtvSMqoNhktXGhiGhdpz67HoY
+  public_key: 99opVnkgQ6d3GM2FycK1SazKSbYY5aoPPJSAJ59R8DWZ
 wallet:
   public_key: DEpm7aynDWFF7tQ7M78sdezDgNeqa8kP6M67uzvF8W1X
